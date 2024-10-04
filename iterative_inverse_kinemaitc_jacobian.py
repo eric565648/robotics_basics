@@ -4,6 +4,7 @@ from qpsolvers import solve_qp
 from general_robotics_toolbox import *
 from general_robotics_toolbox import tesseract as rox_tesseract
 from general_robotics_toolbox import robotraconteur as rr_rox
+from matplotlib import pyplot as plt
 
 # Define the robot
 with open('ABB_1200_5_90_robot_default_config.yml', 'r') as file:
@@ -32,17 +33,28 @@ for i in range(len(q_all)):
 
 ### inverse kinematics using jacobian
 target_flange_T = deepcopy(flange_T)
-q_init = q_all[0] + np.random.uniform(-0.01, 0.01, 6)
+q_init = q_all[0] + np.random.uniform(-0.05, 0.05, 6)
 
 q_iter = q_init
-for i in range(100):
+angle_weight = 180/np.pi
+
+p_error = []
+for i in range(10000):
     print(f'Joint angles: {np.round(np.degrees(q_iter),2)}')
     flange_T = fwdkin(robot, q_iter)
     vd = target_flange_T.p-flange_T.p
-    Rd = flange_T.R.T@target_flange_T.R
+    Rd = target_flange_T.R@flange_T.R.T
+    # Rd = flange_T.R@target_flange_T.R.T
     k,theta = R2rot(Rd)
-    omega_d = k*theta
-    nu_d = np.concatenate((omega_d,vd))
+    if theta<1e-10:
+        omega_d = np.zeros(3)
+    else:
+        omega_d=np.sin(theta/2)*k # You can use any s error function here
+    nu_d = np.concatenate((omega_d*angle_weight,vd))
+    p_error.append(np.linalg.norm(vd))
+
+    if p_error[-1] < 0.001:
+        break
 
     print("Iteration:", i, "Error:", np.linalg.norm(vd), 'Theta:', np.degrees(theta))
     if np.linalg.norm(vd) < 1e-6:
@@ -56,5 +68,9 @@ for i in range(100):
 
     # qdot = np.linalg.pinv(J) @ nu_d
     
-    q_iter = q_iter + 0.1*qdot
+    q_iter = q_iter + 0.01*qdot
     
+plt.plot(p_error)
+plt.xlabel('Iteration')
+plt.ylabel('Position error')
+plt.show()
