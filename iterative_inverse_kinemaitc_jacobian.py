@@ -36,7 +36,8 @@ target_flange_T = deepcopy(flange_T)
 q_init = q_all[0] + np.random.uniform(-0.05, 0.05, 6)
 
 q_iter = q_init
-angle_weight = 180/np.pi
+angle_weight = 1
+alpha=1
 
 p_error = []
 for i in range(10000):
@@ -44,7 +45,6 @@ for i in range(10000):
     flange_T = fwdkin(robot, q_iter)
     vd = target_flange_T.p-flange_T.p
     Rd = target_flange_T.R@flange_T.R.T
-    # Rd = flange_T.R@target_flange_T.R.T
     k,theta = R2rot(Rd)
     if theta<1e-10:
         omega_d = np.zeros(3)
@@ -53,7 +53,7 @@ for i in range(10000):
     nu_d = np.concatenate((omega_d*angle_weight,vd))
     p_error.append(np.linalg.norm(vd))
 
-    if p_error[-1] < 0.001:
+    if np.linalg.norm(nu_d) < 0.001:
         break
 
     print("Iteration:", i, "Error:", np.linalg.norm(vd), 'Theta:', np.degrees(theta))
@@ -68,7 +68,7 @@ for i in range(10000):
 
     # qdot = np.linalg.pinv(J) @ nu_d
     
-    q_iter = q_iter + 0.01*qdot
+    q_iter = q_iter + alpha*qdot
     
 plt.plot(p_error)
 plt.xlabel('Iteration')
