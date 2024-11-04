@@ -74,6 +74,9 @@ for i in range(1,len(curve_p)):
 lam_planned = np.cumsum(np.linalg.norm(np.diff(curve_p, axis=0), axis=1))
 lam_planned = np.insert(lam_planned, 0, 0)
 
+
+################### Execute the trajectory on the robot ###################
+
 # Run it on the robot
 my_tool = abb.tooldata(True,abb.pose([0,0,0.1],[1,0,0,0]),abb.loaddata(0.001,[0,0,0.001],[1,0,0,0],0,0,0))
 
@@ -101,6 +104,8 @@ for i in breakpoints[1:]:
         mp.MoveL(robt,abb.v200,abb.fine) # last zone is fine
     else:
         mp.MoveL(robt,abb.v200,abb.z50) # using zone = z50
+
+print(mp.get_program_rapid())
 
 client = abb.MotionProgramExecClient(base_url="http://127.0.0.1:80")
 log_results = client.execute_motion_program(mp) # run on the robot/robotstudio and log the results

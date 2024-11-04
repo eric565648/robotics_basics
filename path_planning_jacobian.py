@@ -12,13 +12,11 @@ from traj_gen import get_trajectory
 with open('ABB_1200_5_90_robot_default_config.yml', 'r') as file:
     robot = rr_rox.load_robot_info_yaml_to_robot(file)
 
-print(fwdkin(robot, np.radians([0,30,30,0,20,0])))
-
 # Define a curve in 3D space with postion and orientation in the rbots base frame
 # sample a parabolic curve in 3D space
 final_l = 300 # 300 mm curve
 x_sample_range = np.linspace(0, final_l, int(final_l/0.1)+1) # sample every 0.1 mm
-curve_p, curve_n = get_trajectory(x_sample_range)
+curve_p, curve_n = get_trajectory(x_sample_range) # 5 dof
 
 # fix orientation R
 curve_R = []

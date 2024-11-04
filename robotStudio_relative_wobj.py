@@ -21,7 +21,7 @@ tool_T = Transform(np.eye(3), np.array([0, 0, 100]))
 # print(np.degrees(robot6_sphericalwrist_invkin(robot,center_T*tool_T.inv())))
 
 # Run it on the robot
-my_tool = abb.tooldata(True,abb.pose([0,0,0.1],[1,0,0,0]),abb.loaddata(0.001,[0,0,0.001],[1,0,0,0],0,0,0))
+my_tool = abb.tooldata(True,abb.pose(tool_T.p,R2q(tool_T.R)),abb.loaddata(0.001,[0,0,0.001],[1,0,0,0],0,0,0))
 my_wobj = abb.wobjdata(False,True,"",abb.pose([600,0,550],[1,0,0,0]),abb.pose([0,0,0],[1,0,0,0]))
 
 def quadrant(q,robot):
