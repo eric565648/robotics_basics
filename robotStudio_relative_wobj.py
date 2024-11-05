@@ -12,14 +12,6 @@ with open('ABB_1200_5_90_robot_default_config.yml', 'r') as file:
 
 tool_T = Transform(np.eye(3), np.array([0, 0, 100]))
 
-# print(fwdkin(robot, np.radians([0,0,0,0,0,0]))*tool_T)
-
-# square center at [600,0,550], side length 150
-# Rotation are all np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]).T
-
-# center_T = Transform(np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]).T, np.array([525, -75, 550]))
-# print(np.degrees(robot6_sphericalwrist_invkin(robot,center_T*tool_T.inv())))
-
 # Run it on the robot
 my_tool = abb.tooldata(True,abb.pose(tool_T.p,R2q(tool_T.R)),abb.loaddata(0.001,[0,0,0.001],[1,0,0,0],0,0,0))
 my_wobj = abb.wobjdata(False,True,"",abb.pose([600,0,550],[1,0,0,0]),abb.pose([0,0,0],[1,0,0,0]))
@@ -44,16 +36,22 @@ mp = abb.MotionProgram(tool=my_tool,wobj=my_wobj)
 ###
 
 # move robot to the four corners of the square
-corner_p = np.array([[-75, -75, 0], [-75, 75, 0], [75, 75, 0], [75, -75, 0], [-75, -75, 0]])
+# square center at [600,0,550], side length 150
+# Rotation are all np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]).T
+square_size = 50
+corner_p = np.array([[-square_size/2, -square_size/2, 0], [-square_size/2, square_size/2, 0], [square_size/2, square_size/2, 0], [square_size/2, -square_size/2, 0], [-square_size/2, -square_size/2, 0]])
 corner_R = np.array([[-1, 0, 0], [0, 1, 0], [0, 0, -1]]).T
 for i in range(5):
     robt = abb.robtarget(corner_p[i],R2q(corner_R),abb.confdata(0,-1,-1,0),[0]*6) # create the robtarget, position (mm), orientation (quaternion)
     if i==0 or i==4:
-        mp.MoveL(robt,abb.v150,abb.fine) # last zone is fine
+        mp.MoveL(robt,abb.v10,abb.fine) # last zone is fine
     else:
-        mp.MoveL(robt,abb.v150,abb.z50) # using zone = z50
+        mp.MoveL(robt,abb.v10,abb.z50) # using zone = z50
 
-client = abb.MotionProgramExecClient(base_url="http://127.0.0.1:80")
+print("Robot start moving")
+
+# client = abb.MotionProgramExecClient(base_url="http://127.0.0.1:80") # for simulation in RobotStudio
+client = abb.MotionProgramExecClient(base_url="http://192.168.60.101:80") # for real robot
 log_results = client.execute_motion_program(mp) # run on the robot/robotstudio and log the results
 
 cmd_num=log_results.data[:,1] # command number
