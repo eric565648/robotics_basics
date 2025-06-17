@@ -79,8 +79,8 @@ egm_config = abb.EGMJointTargetConfig(
 )
 mp = abb.MotionProgram(egm_config = egm_config)
 mp.EGMRunJoint(10, 0.05, 0.05)
-# client = abb.MotionProgramExecClient(base_url="http://127.0.0.1:80") # for simulation in RobotStudio
-client = abb.MotionProgramExecClient(base_url="http://192.168.60.101:80") # for real robot
+client = abb.MotionProgramExecClient(base_url="http://127.0.0.1:80") # for simulation in RobotStudio
+# client = abb.MotionProgramExecClient(base_url="http://192.168.60.101:80") # for real robot
 lognum = client.execute_motion_program(mp, wait=False)
 egm = EGM()
 
@@ -161,8 +161,8 @@ def trajectory_generate(curve_js,robot,lin_vel,lin_acc):
 # Run it on the robot using EGM
 
 # robot tool velocity and acceleration 
-tool_vel = 10 # mm/s
-tool_acc = 10 # mm/s^2
+tool_vel = 30 # mm/s
+tool_acc = 30 # mm/s^2
 
 # first jog the robot to the initial position
 q_start=read_position(egm)
