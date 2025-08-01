@@ -16,23 +16,25 @@ def quadrant(q,robot):
 
 # Run it on the robot
 my_tool = abb.tooldata(True,abb.pose([0,0,0.1],[1,0,0,0]),abb.loaddata(0.001,[0,0,0.001],[1,0,0,0],0,0,0))
+my_wobj = abb.wobjdata(False,True,"",abb.pose([0,0,0],[1,0,0,0]),abb.pose([0,0,0],[1,0,0,0]))
 
-mp = abb.MotionProgram(tool=my_tool)
-jt_init = abb.jointtarget(np.degrees(curve_js[0]),[0]*6) # using moveabsj to move to the initial joint angles
+mp = abb.MotionProgram(tool=my_tool, wobj=my_wobj)
+jt_init = abb.jointtarget(np.array([0,9,5,0,75,0]),[0]*6) # using moveabsj to move to the initial joint angles
 
-target0 = abb.robtarget(abb.pose([0.5,0,0.5],[1,0,0,0]),abb.confdata(0,0,0,0),[0]*6)
-target1 = abb.robtarget(abb.pose([0.5,0.5,0.5],[1,0,0,0]),abb.confdata(0,0,0,0),[0]*6)
-target2 = abb.robtarget(abb.pose([0,0.5,0.5],[1,0,0,0]),abb.confdata(0,0,0,0),[0]*6)
-target3 = abb.robtarget(abb.pose([0,0,0.5],[1,0,0,0]),abb.confdata(0,0,0,0),[0]*6)
+target0 = abb.robtarget([440,-75,550],[0,0,1,0],abb.confdata(0,0,1,0),[0]*6)
+target1 = abb.robtarget([590,-75,550],[0,0,1,0],abb.confdata(0,0,1,0),[0]*6)
+target2 = abb.robtarget([590,75,550],[0,0,1,0],abb.confdata(0,0,1,0),[0]*6)
+target3 = abb.robtarget([440,75,550],[0,0,1,0],abb.confdata(0,0,1,0),[0]*6)
 
 speed = abb.v50
 zone = abb.z50
 
-mp.MoveAbsJ(jt_init,abb.v1000,abb.fine)
+mp.MoveAbsJ(jt_init,speed,abb.fine)
 mp.MoveL(target0, speed, zone)
 mp.MoveL(target1, speed, zone)
 mp.MoveL(target2, speed, zone)
-mp.MoveL(target3, speed, abb.fine)
+mp.MoveL(target3, speed, zone)
+mp.MoveL(target0, speed, abb.fine)
 
 # execution
 client = abb.MotionProgramExecClient(base_url="http://127.0.0.1:80")
